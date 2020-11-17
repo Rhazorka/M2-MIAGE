@@ -119,7 +119,7 @@ template.innerHTML = `
         <webaudio-param id="valVolume" link="knobVolume"></webaudio-param>
       </td>
       <td>
-        <webaudio-knob id="knobBalance"  src="./assets/imgs/balance.png" sprites="127" value=1 min="0" max="1" step=0.01></webaudio-knob>
+        <webaudio-knob id="knobBalance"  src="./assets/imgs/balance.png" sprites="127" value=0 min="-1" max="1" step=0.01></webaudio-knob>
       </td>
     </tr>
   </table>
@@ -148,24 +148,34 @@ class MyAudioPlayer extends HTMLElement {
     this.height=this.canvas.height;
     this.canvasContext = this.canvas.getContext("2d");
     this.playerNode= this.audioContext.createMediaElementSource(this.player);
-    this.pannerNode = this.audioContext.createStereoPanner();
+    this.pannerNode = new StereoPannerNode(this.audioContext,{pan: 0});
     this.analyserNode = this.audioContext.createAnalyser();
     this.analyserNode.fftSize=1024;
     this.bufferLength=this.analyserNode.frequencyBinCount;
     this.dataArray = new Uint8Array(this.bufferLength);
-    this.filter;
+
+   /* this.filter=[];
+    let freq=[60,170,650,1000,3500,10000];
+    for(var i=1;freq.length-1;i++){
+      let eq = this.audioContext.createBiquadFilter();
+      eq.frequency.value=freq[i];
+      eq.type="peaking";
+      eq.gain.value=0;
+      this.filters.pus;
+    }
     [60,170,650,1000,3500,10000].forEach(function(freq,i){
-      let eq =MyAudioPlayer.audioContext.createBiquadFilter();
+      let eq = audioContext.createBiquadFilter();
       eq.frequency.value=freq;
       eq.type="peaking";
       eq.gain.value=0;
       this.filters.push(eq);
     });
     this.playerNode.connect(this.filters[0]);
-    for(vari=0;i<this.filters.length-1;i++){
+    for(var i=0;i<this.filters.length-1;i++){
       this.filters[i].connect[i+1];
     }
     this.filters[this.filters.length-1].connect(this.analyserNode)
+*/
     this.playerNode
       .connect(this.pannerNode)
       .connect(this.analyserNode)
@@ -251,9 +261,9 @@ class MyAudioPlayer extends HTMLElement {
     this.shadowRoot.querySelector("#gainSlider5").addEventListener("input", (event) => {
       this.setGain(event.target.value,5);
     });
-   /* this.shadowRoot.querySelector("#knobBalance").addEventListener("input", (event) => {
+    this.shadowRoot.querySelector("#knobBalance").addEventListener("input", (event) => {
       this.setBalance(event.target.value);
-    });*/
+    });
   }
   setBalance(val){
     this.pannerNode.pan.value=val;
@@ -278,10 +288,6 @@ class MyAudioPlayer extends HTMLElement {
   }
   front(){
     this.player.currentTime+=10;
-  }
-  setGain(val,nbSlider){
-    this.filters[nbSlider].gain.value=parseFloat(val);
-    this.shadowRoot.querySelector("#gain"+nbSlider).value=parseFloat(val);
   }
 }
 
